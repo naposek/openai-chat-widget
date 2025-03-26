@@ -1,11 +1,13 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Send } from "lucide-react";
+import { Send, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { sendChatMessage, ChatSettings, loadChatSettings } from "@/services/openai";
+import ChatSettings as ChatSettingsComponent from "@/components/ChatSettings";
 
 interface Message {
   role: "user" | "assistant" | "system";
@@ -21,11 +23,20 @@ const ChatEmbeddable = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<ChatSettings>(loadChatSettings());
+
+  const handleSettingsChange = (newSettings: ChatSettings) => {
+    setSettings(newSettings);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!input.trim()) return;
+    if (!settings.apiKey) {
+      toast.error("Please set your OpenAI API key in settings");
+      return;
+    }
     
     // Add user message to the chat
     const userMessage: Message = { role: "user", content: input };
@@ -34,41 +45,18 @@ const ChatEmbeddable = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call for demonstration
-      // In production, replace this with actual backend API call
-      setTimeout(() => {
-        const aiResponse: Message = {
-          role: "assistant",
-          content: "This is a simulated response. When deployed, this would be replaced with a response from the OpenAI API via your secure backend.",
-        };
-        setMessages((prev) => [...prev, aiResponse]);
-        setIsLoading(false);
-      }, 1000);
-      
-      /* 
-      // Production code would look like this:
       const allMessages = [...messages, userMessage];
-      const response = await fetch('https://YOUR_BACKEND_URL/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: allMessages }),
-      });
+      const aiResponseContent = await sendChatMessage(allMessages, settings);
       
-      if (!response.ok) throw new Error('Failed to get response');
-      
-      const data = await response.json();
-      const aiResponse: Message = { 
-        role: "assistant", 
-        content: data.message.content 
+      const aiResponse: Message = {
+        role: "assistant",
+        content: aiResponseContent,
       };
       
       setMessages((prev) => [...prev, aiResponse]);
-      */
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to get a response. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to get a response. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -77,8 +65,9 @@ const ChatEmbeddable = () => {
   return (
     <div className="flex items-center justify-center min-h-full bg-background p-4">
       <Card className="w-full max-w-md h-[600px] flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-center">AI Assistant</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-center flex-1">AI Assistant</CardTitle>
+          <ChatSettingsComponent onSettingsChange={handleSettingsChange} />
         </CardHeader>
         <Separator />
         <CardContent className="flex-grow overflow-auto p-4">
@@ -123,7 +112,7 @@ const ChatEmbeddable = () => {
               disabled={isLoading}
               className="flex-grow"
             />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+            <Button type="submit" disabled={isLoading || !input.trim() || !settings.apiKey}>
               <Send className="h-4 w-4" />
             </Button>
           </form>

@@ -4,37 +4,65 @@ interface OpenAIMessage {
   content: string;
 }
 
-interface ChatCompletionResponse {
-  choices: {
-    message: {
-      role: string;
-      content: string;
-    };
-  }[];
+export interface ChatSettings {
+  apiKey: string;
+  assistantId?: string;
+  model?: string;
 }
 
-// This service will handle communication with your backend
-// Replace the URL with your actual backend endpoint when deployed
-export const sendChatMessage = async (messages: OpenAIMessage[]): Promise<string> => {
+// Load settings from localStorage
+export const loadChatSettings = (): ChatSettings => {
+  const settingsString = localStorage.getItem("openai-chat-settings");
+  if (settingsString) {
+    try {
+      return JSON.parse(settingsString);
+    } catch (e) {
+      console.error("Failed to parse chat settings", e);
+    }
+  }
+  return { apiKey: "", model: "gpt-4o-mini" };
+};
+
+// Save settings to localStorage
+export const saveChatSettings = (settings: ChatSettings): void => {
+  localStorage.setItem("openai-chat-settings", JSON.stringify(settings));
+};
+
+// This service will handle communication with the OpenAI API directly from the browser
+// Note: In production, it's better to use a backend proxy to protect your API key
+export const sendChatMessage = async (messages: OpenAIMessage[], settings: ChatSettings): Promise<string> => {
   try {
-    // In a production environment, this should call your backend API
-    // which securely handles the OpenAI API key
-    const response = await fetch('https://YOUR_BACKEND_URL/api/chat', {
-      method: 'POST',
+    if (!settings.apiKey) {
+      throw new Error("OpenAI API key is required");
+    }
+
+    // Direct API call to OpenAI (not recommended for production)
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${settings.apiKey}`,
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({
+        model: settings.model || "gpt-4o-mini",
+        messages,
+        temperature: 0.7,
+      }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to get response');
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        `OpenAI API error (${response.status}): ${
+          errorData?.error?.message || response.statusText
+        }`
+      );
     }
 
     const data = await response.json();
-    return data.message.content;
+    return data.choices[0].message.content;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     throw error;
   }
 };

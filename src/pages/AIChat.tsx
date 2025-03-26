@@ -1,14 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
+import ChatSettings from "@/components/ChatSettings";
+import { sendChatMessage, ChatSettings as ChatSettingsType, loadChatSettings } from "@/services/openai";
 
 interface Message {
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "system";
   content: string;
 }
 
@@ -21,11 +23,20 @@ const AIChat = () => {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
+
+  const handleSettingsChange = (newSettings: ChatSettingsType) => {
+    setSettings(newSettings);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!input.trim()) return;
+    if (!settings.apiKey) {
+      toast.error("Please set your OpenAI API key in settings");
+      return;
+    }
     
     // Add user message to the chat
     const userMessage: Message = { role: "user", content: input };
@@ -34,37 +45,19 @@ const AIChat = () => {
     setIsLoading(true);
     
     try {
-      // This would be where you'd make an API call to OpenAI
-      // For demo purposes, we'll just simulate a response after a delay
-      setTimeout(() => {
-        const aiResponse: Message = {
-          role: "assistant",
-          content: "This is a placeholder response. In a real implementation, this would come from the OpenAI API. To use the actual API, you would need to create a server-side component or use a secure backend service to protect your API key.",
-        };
-        setMessages((prev) => [...prev, aiResponse]);
-        setIsLoading(false);
-      }, 1000);
+      const allMessages = [...messages, userMessage];
+      const aiResponseContent = await sendChatMessage(allMessages, settings);
       
-      // IMPORTANT: In a real implementation, you'd make an API call like this:
-      /*
-      const response = await fetch('YOUR_BACKEND_ENDPOINT', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-        }),
-      });
+      const aiResponse: Message = {
+        role: "assistant",
+        content: aiResponseContent,
+      };
       
-      if (!response.ok) throw new Error('Failed to get response');
-      
-      const data = await response.json();
-      setMessages((prev) => [...prev, data.message]);
-      */
+      setMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
       console.error("Error:", error);
-      toast.error("Failed to get a response. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to get a response. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -72,8 +65,9 @@ const AIChat = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md h-[600px] flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-center">AI Assistant</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-center flex-1">AI Assistant</CardTitle>
+          <ChatSettings onSettingsChange={handleSettingsChange} />
         </CardHeader>
         <Separator />
         <CardContent className="flex-grow overflow-auto p-4">
@@ -118,7 +112,7 @@ const AIChat = () => {
               disabled={isLoading}
               className="flex-grow"
             />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+            <Button type="submit" disabled={isLoading || !input.trim() || !settings.apiKey}>
               <Send className="h-4 w-4" />
             </Button>
           </form>
