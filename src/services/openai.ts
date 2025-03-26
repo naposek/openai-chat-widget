@@ -29,14 +29,12 @@ export const saveChatSettings = (settings: ChatSettings): void => {
 };
 
 // This service will handle communication with the OpenAI API directly from the browser
-// Note: In production, it's better to use a backend proxy to protect your API key
 export const sendChatMessage = async (messages: OpenAIMessage[], settings: ChatSettings): Promise<string> => {
   try {
     if (!settings.apiKey) {
       throw new Error("OpenAI API key is required");
     }
 
-    // Direct API call to OpenAI (not recommended for production)
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {

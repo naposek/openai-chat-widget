@@ -14,12 +14,14 @@ interface ChatSettingsProps {
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState<ChatSettingsType>(() => loadChatSettings());
+  // Initialize settings from localStorage only once
+  const initialSettings = React.useMemo(() => loadChatSettings(), []);
+  const [settings, setSettings] = useState<ChatSettingsType>(initialSettings);
 
-  // Load settings only once when the component mounts
+  // Notify parent component of initial settings once on mount
   useEffect(() => {
-    onSettingsChange(settings);
-  }, []);
+    onSettingsChange(initialSettings);
+  }, [initialSettings, onSettingsChange]);
 
   const handleSave = () => {
     saveChatSettings(settings);
@@ -28,8 +30,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   };
 
   const handleSettingChange = (newSettings: Partial<ChatSettingsType>) => {
-    const updatedSettings = { ...settings, ...newSettings };
-    setSettings(updatedSettings);
+    setSettings(prevSettings => ({ ...prevSettings, ...newSettings }));
   };
 
   return (

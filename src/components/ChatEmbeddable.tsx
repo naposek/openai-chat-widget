@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Send, Settings } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { sendChatMessage, ChatSettings, loadChatSettings } from "@/services/openai";
 import ChatSettingsComponent from "@/components/ChatSettings";
@@ -26,6 +26,7 @@ const ChatEmbeddable = () => {
   const [settings, setSettings] = useState<ChatSettings>(loadChatSettings());
 
   const handleSettingsChange = (newSettings: ChatSettings) => {
+    console.log("Settings changed:", newSettings);
     setSettings(newSettings);
   };
 
