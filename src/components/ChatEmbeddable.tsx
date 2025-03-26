@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Send, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { sendChatMessage, ChatSettings, loadChatSettings } from "@/services/openai";
-import ChatSettings as ChatSettingsComponent from "@/components/ChatSettings";
+import ChatSettingsComponent from "@/components/ChatSettings";
 
 interface Message {
   role: "user" | "assistant" | "system";
