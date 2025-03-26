@@ -12,20 +12,24 @@ export interface ChatSettings {
 
 // Load settings from localStorage
 export const loadChatSettings = (): ChatSettings => {
-  const settingsString = localStorage.getItem("openai-chat-settings");
-  if (settingsString) {
-    try {
+  try {
+    const settingsString = localStorage.getItem("openai-chat-settings");
+    if (settingsString) {
       return JSON.parse(settingsString);
-    } catch (e) {
-      console.error("Failed to parse chat settings", e);
     }
+  } catch (e) {
+    console.error("Failed to parse chat settings", e);
   }
   return { apiKey: "", model: "gpt-4o-mini" };
 };
 
 // Save settings to localStorage
 export const saveChatSettings = (settings: ChatSettings): void => {
-  localStorage.setItem("openai-chat-settings", JSON.stringify(settings));
+  try {
+    localStorage.setItem("openai-chat-settings", JSON.stringify(settings));
+  } catch (e) {
+    console.error("Failed to save chat settings", e);
+  }
 };
 
 // This service will handle communication with the OpenAI API directly from the browser

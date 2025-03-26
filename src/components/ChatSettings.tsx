@@ -14,13 +14,9 @@ interface ChatSettingsProps {
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState<ChatSettingsType>(() => {
-    // Load settings once during component initialization
-    const initialSettings = loadChatSettings();
-    // Notify parent of initial settings (outside useEffect to avoid potential loops)
-    setTimeout(() => onSettingsChange(initialSettings), 0);
-    return initialSettings;
-  });
+  const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
+
+  // No useEffect or callbacks that might cause loops
 
   const handleSave = () => {
     saveChatSettings(settings);
