@@ -66,7 +66,7 @@ const AIChat = () => {
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md h-[600px] flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-center flex-1">AI Assistant</CardTitle>
+          <CardTitle className="text-center flex-1">DecoChat DekorAI</CardTitle>
           <ChatSettings onSettingsChange={handleSettingsChange} />
         </CardHeader>
         <Separator />

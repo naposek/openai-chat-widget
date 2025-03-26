@@ -38,7 +38,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OpenAI Settings</DialogTitle>
+          <DialogTitle>DecoChat DekorAI Settings</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
