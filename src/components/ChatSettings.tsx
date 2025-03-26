@@ -14,25 +14,22 @@ interface ChatSettingsProps {
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
+  const [settings, setSettings] = useState<ChatSettingsType>(() => loadChatSettings());
 
-  // Fixed the infinite loop by adding proper dependency array
+  // Load settings only once when the component mounts
   useEffect(() => {
-    // Load settings on component mount only, not on every render
-    const savedSettings = loadChatSettings();
-    setSettings(savedSettings);
-    // Call this only once on mount
-  }, []);
-  
-  // Separate effect to handle settings changes
-  useEffect(() => {
-    // Notify parent of settings changes, but don't re-save on mount
     onSettingsChange(settings);
-  }, [settings, onSettingsChange]);
+  }, []);
 
   const handleSave = () => {
     saveChatSettings(settings);
+    onSettingsChange(settings);
     setOpen(false);
+  };
+
+  const handleSettingChange = (newSettings: Partial<ChatSettingsType>) => {
+    const updatedSettings = { ...settings, ...newSettings };
+    setSettings(updatedSettings);
   };
 
   return (
@@ -54,7 +51,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
               type="password"
               placeholder="sk-..."
               value={settings.apiKey}
-              onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+              onChange={(e) => handleSettingChange({ apiKey: e.target.value })}
             />
             <p className="text-sm text-muted-foreground">
               Your API key is stored only in your browser's localStorage.
@@ -67,7 +64,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
               id="assistantId"
               placeholder="asst_..."
               value={settings.assistantId || ""}
-              onChange={(e) => setSettings({ ...settings, assistantId: e.target.value })}
+              onChange={(e) => handleSettingChange({ assistantId: e.target.value })}
             />
           </div>
 
@@ -75,7 +72,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
             <Label htmlFor="model">Model</Label>
             <Select 
               value={settings.model || "gpt-4o-mini"} 
-              onValueChange={(value) => setSettings({ ...settings, model: value })}
+              onValueChange={(value) => handleSettingChange({ model: value })}
             >
               <SelectTrigger id="model">
                 <SelectValue placeholder="Select model" />
