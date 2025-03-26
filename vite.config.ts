@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  base: "/openai-chat-widget/", // Replace with your repository name
+  base: "/openai-chat-widget/", // Make sure this matches your repository name exactly
   plugins: [
     react(),
     mode === 'development' &&
