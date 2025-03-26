@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,14 +14,13 @@ interface ChatSettingsProps {
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
-  // Initialize settings from localStorage only once
-  const initialSettings = React.useMemo(() => loadChatSettings(), []);
-  const [settings, setSettings] = useState<ChatSettingsType>(initialSettings);
-
-  // Notify parent component of initial settings once on mount
-  useEffect(() => {
-    onSettingsChange(initialSettings);
-  }, [initialSettings, onSettingsChange]);
+  const [settings, setSettings] = useState<ChatSettingsType>(() => {
+    // Load settings once during component initialization
+    const initialSettings = loadChatSettings();
+    // Notify parent of initial settings (outside useEffect to avoid potential loops)
+    setTimeout(() => onSettingsChange(initialSettings), 0);
+    return initialSettings;
+  });
 
   const handleSave = () => {
     saveChatSettings(settings);

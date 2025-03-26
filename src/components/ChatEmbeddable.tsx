@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,6 @@ const ChatEmbeddable = () => {
   const [settings, setSettings] = useState<ChatSettings>(loadChatSettings());
 
   const handleSettingsChange = (newSettings: ChatSettings) => {
-    console.log("Settings changed:", newSettings);
     setSettings(newSettings);
   };
 

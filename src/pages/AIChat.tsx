@@ -26,7 +26,6 @@ const AIChat = () => {
   const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
 
   const handleSettingsChange = (newSettings: ChatSettingsType) => {
-    console.log("Settings changed in AIChat:", newSettings);
     setSettings(newSettings);
   };
 
