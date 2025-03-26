@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
+  // Get the base URL excluding the hash part
+  const baseUrl = `${window.location.protocol}//${window.location.host}${import.meta.env.BASE_URL}`;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
       <div className="max-w-3xl w-full text-center mb-8">
@@ -46,7 +49,7 @@ const Index = () => {
           <h2 className="text-2xl font-bold mb-4">How to Embed</h2>
           <p className="mb-4">To embed this chat widget on your website, use this iframe:</p>
           <div className="bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto text-left mb-4">
-            <code>{`<iframe src="${window.location.origin}${import.meta.env.BASE_URL}/embed" width="400" height="600" frameborder="0"></iframe>`}</code>
+            <code>{`<iframe src="${baseUrl}#/embed" width="400" height="600" frameborder="0"></iframe>`}</code>
           </div>
         </div>
       </div>
