@@ -11,12 +11,15 @@ import Embeddable from "./pages/Embeddable";
 
 const queryClient = new QueryClient();
 
+// Get the base URL from import.meta.env.BASE_URL or use a default
+const baseUrl = import.meta.env.BASE_URL || "/";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename={baseUrl}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/chat" element={<AIChat />} />
