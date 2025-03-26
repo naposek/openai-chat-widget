@@ -16,16 +16,22 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
 
+  // Fixed the infinite loop by adding proper dependency array
   useEffect(() => {
-    // Load settings on component mount
+    // Load settings on component mount only, not on every render
     const savedSettings = loadChatSettings();
     setSettings(savedSettings);
-    onSettingsChange(savedSettings);
-  }, [onSettingsChange]);
+    // Call this only once on mount
+  }, []);
+  
+  // Separate effect to handle settings changes
+  useEffect(() => {
+    // Notify parent of settings changes, but don't re-save on mount
+    onSettingsChange(settings);
+  }, [settings, onSettingsChange]);
 
   const handleSave = () => {
     saveChatSettings(settings);
-    onSettingsChange(settings);
     setOpen(false);
   };
 
