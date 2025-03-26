@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 const Index = () => {
   // Get the base URL excluding the hash part
-  const baseUrl = `${window.location.protocol}//${window.location.host}${import.meta.env.BASE_URL}`;
+  const baseUrl = `${window.location.protocol}//${window.location.host}${import.meta.env.BASE_URL || ''}`;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">

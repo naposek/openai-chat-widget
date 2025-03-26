@@ -8,7 +8,7 @@ interface ChatMessageProps {
 
 const ChatMessage = ({ role, content }: ChatMessageProps) => {
   return (
-    <div className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${role === "user" ? "justify-end" : "justify-start"} my-2`}>
       <div
         className={`max-w-[80%] px-4 py-2 rounded-lg ${
           role === "user"

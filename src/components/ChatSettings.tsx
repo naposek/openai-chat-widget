@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,9 +14,12 @@ interface ChatSettingsProps {
 
 const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState<ChatSettingsType>(loadChatSettings());
+  const [settings, setSettings] = useState<ChatSettingsType>(() => loadChatSettings());
 
-  // No useEffect or callbacks that might cause loops
+  // Notify parent component of initial settings
+  useEffect(() => {
+    onSettingsChange(settings);
+  }, []);
 
   const handleSave = () => {
     saveChatSettings(settings);
@@ -37,7 +40,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>DecoChat DekorAI Settings</DialogTitle>
+          <DialogTitle>Chat Settings</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -46,7 +49,7 @@ const ChatSettings: React.FC<ChatSettingsProps> = ({ onSettingsChange }) => {
               id="apiKey"
               type="password"
               placeholder="sk-..."
-              value={settings.apiKey}
+              value={settings.apiKey || ''}
               onChange={(e) => handleSettingChange({ apiKey: e.target.value })}
             />
             <p className="text-sm text-muted-foreground">
